@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Type } from "lucide-react";
+import { Plus, Trash2, Type, Copy } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,6 +27,7 @@ type ContentElement = {
 
 export default function CourseEditor() {
   const [content, setContent] = useState<ContentElement[]>([]);
+  const [courseName, setCourseName] = useState(""); // Estado para el nombre del curso
 
   // Agregar un nuevo elemento
   const addElement = (type: "h1" | "h2" | "p" | "code") => {
@@ -41,7 +42,10 @@ export default function CourseEditor() {
   };
 
   // Cambiar el tipo de un elemento
-  const changeElementType = (index: number, newType: "h1" | "h2" | "p" | "code") => {
+  const changeElementType = (
+    index: number,
+    newType: "h1" | "h2" | "p" | "code"
+  ) => {
     setContent((prev) =>
       prev.map((el, i) => (i === index ? { ...el, type: newType } : el))
     );
@@ -52,42 +56,87 @@ export default function CourseEditor() {
     setContent((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // Duplicar el último elemento
+  const duplicateLastElement = () => {
+    if (content.length > 0) {
+      const lastElement = content[content.length - 1];
+      setContent((prev) => [...prev, { ...lastElement }]);
+    }
+  };
+
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8 text-center">Editor de Cursos</h1>
+    <div className="p-4 sm:p-8 max-w-4xl mx-auto">
+      {/* Input para el nombre del curso */}
+      <input
+        type="text"
+        value={courseName}
+        onChange={(e) => setCourseName(e.target.value)}
+        className="text-2xl sm:text-4xl underline font-bold mb-8 text-center w-full bg-transparent border-none focus:outline-none focus:ring-0"
+        placeholder="Nombre del curso"
+      />
 
       {/* Botón flotante para agregar elementos */}
-      <div className="fixed bottom-8 right-8">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button className="rounded-full w-12 h-12 p-0 flex items-center justify-center shadow-lg">
-              <Plus className="h-6 w-6" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => addElement("h1")}>
-              Título
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => addElement("h2")}>
-              Subtítulo
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => addElement("p")}>
-              Párrafo
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => addElement("code")}>
-              Código
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <div className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button className="rounded-full w-10 h-10 sm:w-12 sm:h-12 p-0 flex items-center justify-center shadow-lg">
+                      <Plus className="h-4 w-4 sm:h-6 sm:w-6" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => addElement("h1")}>
+                      Título
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => addElement("h2")}>
+                      Subtítulo
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => addElement("p")}>
+                      Párrafo
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => addElement("code")}>
+                      Código
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Agregar nuevo elemento</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+
+      {/* Botón flotante para duplicar el último elemento */}
+      <div className="fixed bottom-16 right-4 sm:bottom-24 sm:right-8">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                className="rounded-full w-10 h-10 sm:w-12 sm:h-12 p-0 flex items-center justify-center shadow-lg"
+                onClick={duplicateLastElement}
+              >
+                <Copy className="h-4 w-4 sm:h-6 sm:w-6" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Duplicar último elemento</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       {/* Renderizar el contenido */}
-      <div className="space-y-4">
+      <div className="space-y-4 mt-8">
         {content.map((element, index) => (
           <div key={index} className="group">
-            <div className="flex items-start gap-4">
+            <div className="flex flex-col sm:flex-row items-start gap-4">
               {/* Contenido del elemento */}
-              <div className="flex-1">
+              <div className="flex-1 w-full max-w-[90%] sm:max-w-none">
                 {element.type === "h1" && (
                   <EditableTitle
                     content={element.content}
@@ -115,29 +164,48 @@ export default function CourseEditor() {
               </div>
 
               {/* Acciones: Cambiar tipo y eliminar */}
-              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 w-full sm:w-auto">
                 {/* Cambiar tipo */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="p-2">
-                      <Type className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => changeElementType(index, "h1")}>
-                      Título
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => changeElementType(index, "h2")}>
-                      Subtítulo
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => changeElementType(index, "p")}>
-                      Párrafo
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => changeElementType(index, "code")}>
-                      Código
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="p-2">
+                              <Type className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            <DropdownMenuItem
+                              onClick={() => changeElementType(index, "h1")}
+                            >
+                              Título
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => changeElementType(index, "h2")}
+                            >
+                              Subtítulo
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => changeElementType(index, "p")}
+                            >
+                              Párrafo
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => changeElementType(index, "code")}
+                            >
+                              Código
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Cambiar tipo de elemento</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
 
                 {/* Eliminar */}
                 <TooltipProvider>
