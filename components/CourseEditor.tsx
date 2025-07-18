@@ -27,7 +27,8 @@ import {
   Video,
   Sparkles,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  FileText as FileTextIcon
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -51,11 +52,12 @@ import EditableParagraph from "./EditableParagraph";
 import EditableCode from "./EditableCode";
 import EditableImage from "./EditableImage";
 import EditableVideo from "./EditableVideo";
+import EditablePDF from "./EditablePDF";
 import { AuthorSettingsDialog } from "./AuthorSettingsDialog";
 import { EditorSidebar } from "./EditorSidebar";
 
 type ContentElement = {
-  type: "h1" | "h2" | "p" | "code" | "image" | "video";
+  type: "h1" | "h2" | "p" | "code" | "image" | "video" | "pdf";
   content: string;
   id: string;
 };
@@ -92,7 +94,7 @@ export default function CourseEditor() {
   const generateId = () => Math.random().toString(36).substr(2, 9);
 
   // Agregar un nuevo elemento
-  const addElement = (type: "h1" | "h2" | "p" | "code" | "image" | "video") => {
+  const addElement = (type: "h1" | "h2" | "p" | "code" | "image" | "video" | "pdf") => {
     setContent((prev) => [...prev, { type, content: "", id: generateId() }]);
   };
 
@@ -106,7 +108,7 @@ export default function CourseEditor() {
   // Cambiar el tipo de un elemento
   const changeElementType = (
     id: string,
-    newType: "h1" | "h2" | "p" | "code" | "image" | "video"
+    newType: "h1" | "h2" | "p" | "code" | "image" | "video" | "pdf"
   ) => {
     setContent((prev) =>
       prev.map((el) => (el.id === id ? { ...el, type: newType } : el))
@@ -438,6 +440,13 @@ export default function CourseEditor() {
                             disabled={isPreviewMode}
                           />
                         )}
+                        {element.type === "pdf" && (
+                          <EditablePDF
+                            content={element.content}
+                            onChange={(newContent) => updateElement(element.id, newContent)}
+                            disabled={isPreviewMode}
+                          />
+                        )}
                       </div>
 
                       {/* Acciones del elemento */}
@@ -498,6 +507,13 @@ export default function CourseEditor() {
                                     >
                                       <Video className="h-4 w-4" />
                                       Video
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() => changeElementType(element.id, "pdf")}
+                                      className="flex items-center gap-2"
+                                    >
+                                      <FileTextIcon className="h-4 w-4" />
+                                      Documento PDF
                                     </DropdownMenuItem>
                                   </DropdownMenuContent>
                                 </DropdownMenu>

@@ -25,10 +25,11 @@ import {
   FileText as FileTextIcon,
   BarChart3,
   Settings,
+  FileText as PDFIcon,
 } from "lucide-react";
 
 interface EditorSidebarProps {
-  onAddElement: (type: "h1" | "h2" | "p" | "code" | "image" | "video") => void;
+  onAddElement: (type: "h1" | "h2" | "p" | "code" | "image" | "video" | "pdf") => void;
   authorName: string;
   contentLength: number;
   wordCount: number;
@@ -76,6 +77,11 @@ export function EditorSidebar({
       type: "video" as const,
       name: "Video",
       icon: Video,
+    },
+    {
+      type: "pdf" as const,
+      name: "Documento PDF",
+      icon: PDFIcon,
     },
   ];
 
