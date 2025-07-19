@@ -9,13 +9,16 @@ import {
   Clock, 
   TrendingUp,
   User,
-  Calendar
+  Calendar,
+  Image,
+  Video,
+  FileText
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
 type ContentElement = {
-  type: "h1" | "h2" | "p" | "code";
+  type: "h1" | "h2" | "p" | "code" | "image" | "video" | "pdf";
   content: string;
   id: string;
 };
@@ -228,6 +231,70 @@ export default function CoursePage() {
                         {element.content}
                       </pre>
                     </div>
+                  </div>
+                )}
+                {element.type === "image" && element.content && (
+                  <div className="mb-6">
+                    <img
+                      src={element.content}
+                      alt="Imagen del curso"
+                      className="w-full h-auto rounded-lg shadow-md"
+                      onError={(e) => {
+                        e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23f1f5f9'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='16' fill='%236b7280'%3EImagen no disponible%3C/text%3E%3C/svg%3E";
+                      }}
+                    />
+                  </div>
+                )}
+                {element.type === "video" && element.content && (
+                  <div className="mb-6">
+                    {element.content.includes('youtube.com') || element.content.includes('youtu.be') ? (
+                      <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                        <iframe
+                          src={element.content.includes('youtube.com/watch') 
+                            ? element.content.replace('youtube.com/watch?v=', 'youtube.com/embed/')
+                            : element.content.replace('youtu.be/', 'youtube.com/embed/')
+                          }
+                          title="Video de YouTube"
+                          className="absolute top-0 left-0 w-full h-full rounded-lg"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                    ) : (
+                      <video
+                        src={element.content}
+                        controls
+                        className="w-full h-auto rounded-lg shadow-md"
+                        poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23f1f5f9'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='16' fill='%236b7280'%3EVideo%3C/text%3E%3C/svg%3E"
+                      >
+                        Tu navegador no soporta el elemento video.
+                      </video>
+                    )}
+                  </div>
+                )}
+                {element.type === "pdf" && element.content && (
+                  <div className="mb-6">
+                    <Card className="p-4 bg-slate-50 border-slate-200">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                          <FileText className="h-6 w-6 text-red-600" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-medium text-slate-900">Documento PDF</h4>
+                          <p className="text-sm text-slate-500">Documento adjunto al curso</p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.open(element.content, '_blank')}
+                          className="h-8 px-3"
+                        >
+                          <FileText className="h-4 w-4 mr-1" />
+                          Ver PDF
+                        </Button>
+                      </div>
+                    </Card>
                   </div>
                 )}
               </div>
